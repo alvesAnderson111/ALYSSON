@@ -153,6 +153,87 @@
         </div>
       </div>
 
+      <!-- VIEW: SERVICES -->
+      <div id="view-services" class="w-full max-w-md mx-auto animate-fade-in px-4 pb-24 hidden">
+        <div class="flex items-center mb-6 pt-4">
+          <button id="btn-back-services" class="p-2 -ml-2 text-stone-500 hover:bg-stone-100 rounded-full">
+            <i data-lucide="arrow-left" width="24" height="24"></i>
+          </button>
+          <h2 class="text-xl font-bold text-emerald-900 ml-2">Escolha os Serviços</h2>
+        </div>
+
+        <div class="space-y-4">
+           <p class="text-stone-500 text-sm mb-4">Selecione um ou mais serviços que você precisa:</p>
+           
+           <!-- Roçada -->
+           <button class="btn-service w-full p-4 rounded-xl border border-stone-200 bg-stone-50 hover:bg-white hover:border-emerald-300 transition-all flex items-center gap-4 group text-left" onclick="toggleService('Roçada', this)">
+             <div class="w-12 h-12 rounded-full bg-white border border-stone-100 flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform shadow-sm">
+               <i data-lucide="scissors" width="20"></i>
+             </div>
+             <div>
+               <h3 class="font-bold text-stone-800">Roçada</h3>
+               <p class="text-xs text-stone-500">Corte de grama e limpeza</p>
+             </div>
+             <div class="ml-auto opacity-0 check-icon text-emerald-600">
+               <i data-lucide="check-circle-2" width="24"></i>
+             </div>
+           </button>
+
+           <!-- Implantação -->
+           <button class="btn-service w-full p-4 rounded-xl border border-stone-200 bg-stone-50 hover:bg-white hover:border-emerald-300 transition-all flex items-center gap-4 group text-left" onclick="toggleService('Implantação', this)">
+             <div class="w-12 h-12 rounded-full bg-white border border-stone-100 flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform shadow-sm">
+               <i data-lucide="shovel" width="20"></i>
+             </div>
+             <div>
+               <h3 class="font-bold text-stone-800">Implantação</h3>
+               <p class="text-xs text-stone-500">Criação de novos jardins</p>
+             </div>
+             <div class="ml-auto opacity-0 check-icon text-emerald-600">
+               <i data-lucide="check-circle-2" width="24"></i>
+             </div>
+           </button>
+
+           <!-- Retirada de Entulho -->
+           <button class="btn-service w-full p-4 rounded-xl border border-stone-200 bg-stone-50 hover:bg-white hover:border-emerald-300 transition-all flex items-center gap-4 group text-left" onclick="toggleService('Retirada de Entulho', this)">
+             <div class="w-12 h-12 rounded-full bg-white border border-stone-100 flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform shadow-sm">
+               <i data-lucide="trash-2" width="20"></i>
+             </div>
+             <div>
+               <h3 class="font-bold text-stone-800">Retirada de Entulho</h3>
+               <p class="text-xs text-stone-500">Limpeza pós-obra ou jardim</p>
+             </div>
+             <div class="ml-auto opacity-0 check-icon text-emerald-600">
+               <i data-lucide="check-circle-2" width="24"></i>
+             </div>
+           </button>
+
+           <!-- Manutenção -->
+           <button class="btn-service w-full p-4 rounded-xl border border-stone-200 bg-stone-50 hover:bg-white hover:border-emerald-300 transition-all flex items-center gap-4 group text-left" onclick="toggleService('Manutenção de Jardim', this)">
+             <div class="w-12 h-12 rounded-full bg-white border border-stone-100 flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform shadow-sm">
+               <i data-lucide="flower-2" width="20"></i>
+             </div>
+             <div>
+               <h3 class="font-bold text-stone-800">Manutenção</h3>
+               <p class="text-xs text-stone-500">Cuidado periódico</p>
+             </div>
+             <div class="ml-auto opacity-0 check-icon text-emerald-600">
+               <i data-lucide="check-circle-2" width="24"></i>
+             </div>
+           </button>
+
+        </div>
+
+        <div class="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-stone-100 md:relative md:bg-transparent md:border-0 md:p-0 md:mt-8">
+          <button
+            id="btn-services-next"
+            disabled
+            class="w-full py-4 bg-emerald-800 text-white rounded-xl font-semibold shadow-lg shadow-emerald-900/20 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-emerald-900 transition-colors"
+          >
+            Continuar
+          </button>
+        </div>
+      </div>
+
       <!-- VIEW: DETAILS FORM -->
       <div id="view-details" class="w-full max-w-md mx-auto animate-fade-in px-4 pb-24 hidden">
         <div class="flex items-center mb-6 pt-4">
@@ -199,7 +280,6 @@
                 <div class="text-sm text-stone-500">Vamos avaliar no local</div>
               </button>
 
-              <!-- Hidden custom input now, as 'unknown' implies we don't need user input here -->
               <div id="container-custom-area" class="mt-3 animate-fade-in hidden">
                 <label class="text-xs text-stone-500 ml-1">Alguma observação? (Opcional)</label>
                 <input
@@ -245,6 +325,14 @@
                 <div>
                   <p class="text-xs text-stone-500 font-medium">Data Escolhida</p>
                   <p id="review-date" class="text-stone-800 capitalize">--</p>
+                </div>
+              </div>
+
+               <div class="flex items-start gap-3">
+                <i data-lucide="scissors" class="text-emerald-600 mt-1 shrink-0" width="20"></i>
+                <div>
+                  <p class="text-xs text-stone-500 font-medium">Serviços</p>
+                  <p id="review-services" class="text-stone-800 text-sm">--</p>
                 </div>
               </div>
 
@@ -344,7 +432,7 @@
           <h3 class="text-xl font-bold text-emerald-900 mb-2">Enviar Solicitação?</h3>
           
           <p class="text-stone-600 mb-6 text-sm leading-relaxed">
-            Com a confirmação, iremos analisar seus dados e te enviar o valor do orçamento diretamente no seu WhatsApp. Deseja confirmar?
+            Ao confirmar, os dados do seu pedido serão preparados para envio ao nosso e-mail para análise.
           </p>
 
           <div class="w-full space-y-3">
@@ -377,7 +465,8 @@
         customAreaSize: '',
         name: '',
         cpf: '',
-        phone: ''
+        phone: '',
+        services: new Set()
       };
 
       // INIT
@@ -462,7 +551,8 @@
 
       function selectDate(dateIso) {
         state.selectedDate = new Date(dateIso);
-        showView('view-details');
+        // Navigate to Services
+        showView('view-services');
       }
 
       document.getElementById('cal-prev').onclick = () => {
@@ -477,6 +567,39 @@
 
       document.getElementById('cal-next').onclick = () => {
         state.currentDate = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth() + 1, 1);
+        renderCalendar();
+      };
+
+      // SERVICES LOGIC
+      function toggleService(serviceName, btnElement) {
+        if (state.services.has(serviceName)) {
+            state.services.delete(serviceName);
+            // Visual Deselect
+            btnElement.classList.remove('border-emerald-500', 'bg-emerald-50', 'ring-1', 'ring-emerald-500');
+            btnElement.classList.add('border-stone-200', 'bg-stone-50');
+            btnElement.querySelector('.check-icon').classList.add('opacity-0');
+        } else {
+            state.services.add(serviceName);
+            // Visual Select
+            btnElement.classList.remove('border-stone-200', 'bg-stone-50');
+            btnElement.classList.add('border-emerald-500', 'bg-emerald-50', 'ring-1', 'ring-emerald-500');
+            btnElement.querySelector('.check-icon').classList.remove('opacity-0');
+        }
+        
+        const btnNext = document.getElementById('btn-services-next');
+        if (state.services.size > 0) {
+            btnNext.removeAttribute('disabled');
+        } else {
+            btnNext.setAttribute('disabled', 'true');
+        }
+      }
+      
+      document.getElementById('btn-services-next').onclick = () => {
+        showView('view-details');
+      };
+      
+      document.getElementById('btn-back-services').onclick = () => {
+        showView('view-calendar');
         renderCalendar();
       };
 
@@ -535,8 +658,8 @@
       };
 
       document.getElementById('btn-back-details').onclick = () => {
-        showView('view-calendar');
-        renderCalendar(); 
+        // Go back to services
+        showView('view-services');
       };
 
 
@@ -546,6 +669,10 @@
         document.getElementById('review-date').textContent = dateStr;
         document.getElementById('review-address').textContent = state.address;
         
+        // Services
+        const servicesList = Array.from(state.services).join(', ');
+        document.getElementById('review-services').textContent = servicesList || 'Nenhum selecionado';
+
         let areaText = 'Não informado';
         if (state.areaType === '200') areaText = 'Até 200m²';
         else if (state.areaType === '400') areaText = 'Até 400m²';
@@ -610,17 +737,44 @@
             state.bookedDates.push(state.selectedDate.toDateString());
         }
         
-        console.log("Booking Data:", {
-            date: state.selectedDate,
+        const bookingInfo = {
+            date: state.selectedDate ? state.selectedDate.toLocaleDateString('pt-BR') : '',
+            services: Array.from(state.services).join(', '),
+            area: state.areaType === 'custom' ? `Avaliar no local (${state.customAreaSize})` : (state.areaType === '200' ? 'Até 200m²' : 'Até 400m²'),
             address: state.address,
-            area: state.areaType,
-            obs: state.customAreaSize,
             name: state.name,
             cpf: state.cpf,
             phone: state.phone
-        });
+        };
+        
+        console.log("Booking Data:", bookingInfo);
 
-        // Reset
+        // SEND EMAIL (Mailto)
+        const recipient = "andersonsan99910@gmail.com";
+        const subject = `Novo Pedido de Orçamento - ${state.name}`;
+        const body = `
+Olá, gostaria de solicitar um orçamento.
+
+DADOS DO CLIENTE:
+Nome: ${bookingInfo.name}
+CPF/CNPJ: ${bookingInfo.cpf}
+Telefone: ${bookingInfo.phone}
+
+DETALHES DO SERVIÇO:
+Data Desejada: ${bookingInfo.date}
+Serviços: ${bookingInfo.services}
+Tamanho da Área: ${bookingInfo.area}
+
+ENDEREÇO:
+${bookingInfo.address}
+        `.trim();
+
+        const mailtoLink = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        
+        // Open email client
+        window.location.href = mailtoLink;
+
+        // Reset App
         state.selectedDate = null;
         state.address = '';
         state.areaType = null;
@@ -628,6 +782,7 @@
         state.name = '';
         state.cpf = '';
         state.phone = '';
+        state.services.clear();
         
         // Reset Inputs
         document.getElementById('input-address').value = '';
@@ -635,23 +790,31 @@
         document.getElementById('input-name').value = '';
         document.getElementById('input-cpf').value = '';
         document.getElementById('input-phone').value = '';
+        
+        document.querySelectorAll('.btn-service').forEach(btn => {
+             btn.classList.remove('border-emerald-500', 'bg-emerald-50', 'ring-1', 'ring-emerald-500');
+             btn.classList.add('border-stone-200', 'bg-stone-50');
+             btn.querySelector('.check-icon').classList.add('opacity-0');
+        });
+
         document.querySelectorAll('.btn-area').forEach(btn => {
            btn.classList.remove('border-emerald-500', 'bg-emerald-50', 'ring-1', 'ring-emerald-500');
            btn.classList.add('border-stone-200', 'bg-stone-50');
         });
         document.getElementById('container-custom-area').classList.add('hidden');
+        document.getElementById('btn-services-next').setAttribute('disabled', 'true');
         document.getElementById('btn-details-next').setAttribute('disabled', 'true');
         document.getElementById('btn-confirm-booking').setAttribute('disabled', 'true');
 
         closeModal();
         showView('view-calendar');
-        renderCalendar(); // Refresh calendar to show booked date
+        renderCalendar(); 
       };
 
 
       // NAVIGATION HELPER
       function showView(viewId) {
-        ['view-calendar', 'view-details', 'view-review'].forEach(id => {
+        ['view-calendar', 'view-services', 'view-details', 'view-review'].forEach(id => {
           document.getElementById(id).classList.add('hidden');
         });
         document.getElementById(viewId).classList.remove('hidden');
