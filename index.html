@@ -118,7 +118,7 @@
         <!-- Stage 3: Young Tree -->
         <svg id="tree-3" class="tree-stage absolute bottom-0 text-emerald-700 hidden" width="80" height="80" viewBox="0 0 24 24" fill="currentColor" stroke="none">
            <rect x="11" y="16" width="2" height="8" rx="1" fill="#4B3621"/>
-           <path d="M12 4C7 4 4 8 4 11c0 2 2 4 4 5c-1 1-1 2 0 3c1 1 3 1 4 0c1 1 3 1 4 0c1-1 1-2 0-3c2-1 4-3 4-5c0-3-3-7-8-7Z" />
+           <path d="M12 4C7 4 4 8 4 11c0 2 2 4 4 5c-1 1-1 2 0 3c1 1 3 1 4 0c1 1 3 1 4 0c1 1 3 1 4 0c1-1 1-2 0-3c2-1 4-3 4-5c0-3-3-7-8-7Z" />
         </svg>
 
         <!-- Stage 4: Mature Tree -->
@@ -303,8 +303,18 @@
             <div class="bg-white p-5 md:p-8 rounded-2xl shadow-sm border border-stone-100 hover:shadow-md transition-shadow">
               <div class="flex items-center gap-2 mb-3 text-emerald-700">
                 <i data-lucide="map-pin" width="20"></i>
-                <h3 class="font-semibold text-lg">Endereço</h3>
+                <h3 class="font-semibold text-lg">Localização</h3>
               </div>
+              
+              <div class="mb-3">
+                <input
+                  id="input-city"
+                  type="text"
+                  placeholder="Cidade"
+                  class="w-full p-4 bg-stone-50 border border-stone-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none text-sm md:text-base transition-shadow"
+                />
+              </div>
+              
               <textarea
                 id="input-address"
                 placeholder="Rua, Número, Bairro e Ponto de Referência"
@@ -417,7 +427,7 @@
                   </div>
                   <div>
                     <p class="text-xs text-stone-500 font-medium uppercase">Endereço</p>
-                    <p id="review-address" class="text-stone-800 text-sm md:text-base leading-relaxed">--</p>
+                    <p id="review-address-full" class="text-stone-800 text-sm md:text-base leading-relaxed">--</p>
                   </div>
                 </div>
               </div>
@@ -499,12 +509,15 @@
       <div id="modal-backdrop" class="absolute inset-0 bg-stone-900/60 backdrop-blur-sm animate-fade-in"></div>
       
       <!-- Modal Content -->
-      <div class="relative bg-white rounded-3xl p-6 md:p-8 w-full max-w-sm md:max-w-md shadow-2xl animate-slide-up transform transition-all">
+      <div id="modal-content-wrapper" class="relative bg-white rounded-3xl p-6 md:p-8 w-full max-w-sm md:max-w-md shadow-2xl animate-slide-up transform transition-all">
+        
+        <!-- CLOSE BUTTON (Available in initial state only) -->
         <button id="btn-close-modal" class="absolute top-4 right-4 text-stone-400 hover:text-stone-600 transition-colors bg-stone-100 rounded-full p-1">
           <i data-lucide="x" width="20"></i>
         </button>
 
-        <div class="flex flex-col items-center text-center mt-2">
+        <!-- STATE 1: CONFIRM -->
+        <div id="modal-state-confirm" class="flex flex-col items-center text-center mt-2">
           <div class="w-16 h-16 md:w-20 md:h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-4 shadow-inner">
             <i data-lucide="message-circle" class="w-8 h-8 md:w-10 md:h-10"></i>
           </div>
@@ -512,13 +525,13 @@
           <h3 class="text-xl md:text-2xl font-bold text-emerald-900 mb-2">Enviar Solicitação?</h3>
           
           <p class="text-stone-600 mb-8 text-sm md:text-base leading-relaxed">
-            Ao confirmar, os dados do seu pedido serão preparados para envio ao nosso e-mail para análise.
+            Ao confirmar, os dados do seu pedido serão preparados para envio e entraremos em contato.
           </p>
 
           <div class="w-full space-y-3">
             <button
               id="btn-final-confirm"
-              class="w-full py-3.5 bg-emerald-600 text-white rounded-xl font-semibold shadow-md hover:bg-emerald-700 hover:shadow-lg hover:-translate-y-0.5 transition-all"
+              class="w-full py-3.5 bg-emerald-600 text-white rounded-xl font-semibold shadow-md hover:bg-emerald-700 hover:shadow-lg hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"
             >
               Sim, Confirmar
             </button>
@@ -530,6 +543,48 @@
             </button>
           </div>
         </div>
+
+        <!-- STATE 2: LOADING -->
+        <div id="modal-state-loading" class="hidden flex-col items-center text-center mt-6 mb-4">
+            <div class="w-12 h-12 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin mb-4"></div>
+            <h3 class="text-lg font-bold text-stone-700">Enviando solicitação...</h3>
+            <p class="text-stone-400 text-sm mt-1">Por favor, aguarde.</p>
+        </div>
+
+        <!-- STATE 3: SUCCESS -->
+        <div id="modal-state-success" class="hidden flex-col items-center text-center mt-2">
+             <div class="w-16 h-16 md:w-20 md:h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-4 shadow-inner animate-[fadeIn_0.5s_ease-out]">
+                <i data-lucide="check" class="w-8 h-8 md:w-10 md:h-10"></i>
+            </div>
+            <h3 class="text-xl md:text-2xl font-bold text-emerald-900 mb-2">Solicitação Enviada!</h3>
+            <p class="text-stone-600 mb-6 text-sm leading-relaxed">
+                Recebemos seu pedido com sucesso. Em breve entraremos em contato pelo WhatsApp informado.
+            </p>
+            <button
+              id="btn-success-close"
+              class="w-full py-3 bg-emerald-600 text-white rounded-xl font-semibold shadow-md hover:bg-emerald-700 transition-all"
+            >
+              Voltar ao Início
+            </button>
+        </div>
+
+        <!-- STATE 4: ERROR -->
+        <div id="modal-state-error" class="hidden flex-col items-center text-center mt-2">
+             <div class="w-16 h-16 md:w-20 md:h-20 bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-4 shadow-inner">
+                <i data-lucide="alert-triangle" class="w-8 h-8 md:w-10 md:h-10"></i>
+            </div>
+            <h3 class="text-xl md:text-2xl font-bold text-stone-800 mb-2">Ops, algo deu errado</h3>
+            <p class="text-stone-600 mb-6 text-sm leading-relaxed">
+                Não foi possível enviar sua solicitação. Verifique sua conexão e tente novamente.
+            </p>
+            <button
+              id="btn-error-retry"
+              class="w-full py-3 bg-stone-200 text-stone-700 rounded-xl font-semibold hover:bg-stone-300 transition-all"
+            >
+              Tentar Novamente
+            </button>
+        </div>
+
       </div>
     </div>
 
@@ -541,6 +596,7 @@
         selectedDate: null,
         bookedDates: [],
         address: '',
+        city: 'Franca',
         areaType: null,
         customAreaSize: '',
         name: '',
@@ -548,6 +604,9 @@
         phone: '',
         services: new Set()
       };
+
+      // CONFIG
+      const API_URL = "https://script.google.com/macros/s/AKfycbzsjK9pZkjlkVDkYh5776X9TXQKwUjfLGNyat6kvQYySOTvxwpF2-CZH1_3IiC_Ogcw/exec";
 
       // VALIDATORS
       const validators = {
@@ -564,6 +623,9 @@
         cpfCnpj: (value) => {
             const clean = value.replace(/\D/g, '');
             return clean.length === 11 || clean.length === 14;
+        },
+        city: (value) => {
+            return value.trim().length > 2;
         }
       };
 
@@ -619,6 +681,9 @@
         // Setup Inputs
         setupInputHandlers();
 
+        // Pre-fill default city
+        document.getElementById('input-city').value = state.city;
+
         // Splash Animation Logic (Tree Growth)
         const totalDuration = 3000;
         const stageDuration = totalDuration / 4;
@@ -654,6 +719,9 @@
         const nameInput = document.getElementById('input-name');
         const cpfInput = document.getElementById('input-cpf');
         const phoneInput = document.getElementById('input-phone');
+        const cityInput = document.getElementById('input-city');
+        const addressInput = document.getElementById('input-address');
+        const customAreaInput = document.getElementById('input-custom-area');
 
         // Name
         nameInput.addEventListener('input', (e) => {
@@ -677,6 +745,20 @@
             validateContact();
         });
         phoneInput.addEventListener('blur', () => validateField('phone', phoneInput, 'error-phone', validators.phone));
+        
+        // Address & City
+        cityInput.addEventListener('input', (e) => {
+            state.city = e.target.value;
+            validateDetails();
+        });
+        addressInput.addEventListener('input', (e) => {
+            state.address = e.target.value;
+            validateDetails();
+        });
+        customAreaInput.addEventListener('input', (e) => {
+             state.customAreaSize = e.target.value;
+             validateDetails();
+        });
       }
 
       function validateField(type, inputElement, errorElementId, validatorFn) {
@@ -833,10 +915,6 @@
         const label = document.getElementById('label-custom-area');
         const input = document.getElementById('input-custom-area');
         
-        // Clear previous input if switching
-        // input.value = ''; 
-        // state.customAreaSize = ''; // Optional: if we want to reset input on switch
-
         if (type === 'personalized') {
             container.classList.remove('hidden');
             label.textContent = "Informe o tamanho aproximado:";
@@ -852,18 +930,9 @@
         validateDetails();
       }
 
-      document.getElementById('input-address').addEventListener('input', (e) => {
-        state.address = e.target.value;
-        validateDetails();
-      });
-
-      document.getElementById('input-custom-area').addEventListener('input', (e) => {
-        state.customAreaSize = e.target.value;
-        validateDetails();
-      });
-
       function validateDetails() {
         const addressValid = state.address.trim().length > 5;
+        const cityValid = state.city.trim().length > 2;
         let areaValid = !!state.areaType;
         
         // If personalized, size input is required
@@ -872,7 +941,7 @@
         }
         
         const btn = document.getElementById('btn-details-next');
-        if (addressValid && areaValid) {
+        if (addressValid && cityValid && areaValid) {
            btn.removeAttribute('disabled');
         } else {
            btn.setAttribute('disabled', 'true');
@@ -894,7 +963,7 @@
       function prepareReview() {
         const dateStr = state.selectedDate ? state.selectedDate.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : '--';
         document.getElementById('review-date').textContent = dateStr;
-        document.getElementById('review-address').textContent = state.address;
+        document.getElementById('review-address-full').textContent = `${state.address} - ${state.city}`;
         
         // Services
         const servicesList = Array.from(state.services).join(', ');
@@ -932,6 +1001,13 @@
       };
 
       document.getElementById('btn-confirm-booking').onclick = () => {
+        // Reset Modal State
+        document.getElementById('modal-state-confirm').classList.remove('hidden');
+        document.getElementById('modal-state-loading').classList.add('hidden');
+        document.getElementById('modal-state-success').classList.add('hidden');
+        document.getElementById('modal-state-error').classList.add('hidden');
+        document.getElementById('btn-close-modal').classList.remove('hidden');
+        
         document.getElementById('modal-confirmation').classList.remove('hidden');
       };
 
@@ -940,63 +1016,12 @@
       function closeModal() {
         document.getElementById('modal-confirmation').classList.add('hidden');
       }
-
-      document.getElementById('btn-close-modal').onclick = closeModal;
-      document.getElementById('btn-cancel-modal').onclick = closeModal;
-      document.getElementById('modal-backdrop').onclick = closeModal;
-
-      document.getElementById('btn-final-confirm').onclick = () => {
-        // Confirm booking
-        if(state.selectedDate) {
-            state.bookedDates.push(state.selectedDate.toDateString());
-        }
-        
-        let areaTextForEmail = '';
-        if (state.areaType === '200') areaTextForEmail = 'Pequeno (Até 200m²)';
-        else if (state.areaType === '400') areaTextForEmail = 'Médio (Até 400m²)';
-        else if (state.areaType === 'personalized') areaTextForEmail = `Personalizado: ${state.customAreaSize}`;
-        else areaTextForEmail = `Avaliar no local${state.customAreaSize ? ` (Obs: ${state.customAreaSize})` : ''}`;
-
-        const bookingInfo = {
-            date: state.selectedDate ? state.selectedDate.toLocaleDateString('pt-BR') : '',
-            services: Array.from(state.services).join(', '),
-            area: areaTextForEmail,
-            address: state.address,
-            name: state.name,
-            cpf: state.cpf,
-            phone: state.phone
-        };
-        
-        console.log("Booking Data:", bookingInfo);
-
-        // SEND EMAIL (Mailto)
-        const recipient = "andersonsan99910@gmail.com";
-        const subject = `Novo Pedido de Orçamento - ${state.name}`;
-        const body = `
-Olá, gostaria de solicitar um orçamento.
-
-DADOS DO CLIENTE:
-Nome: ${bookingInfo.name}
-CPF/CNPJ: ${bookingInfo.cpf}
-Telefone: ${bookingInfo.phone}
-
-DETALHES DO SERVIÇO:
-Data Desejada: ${bookingInfo.date}
-Serviços: ${bookingInfo.services}
-Tamanho da Área: ${bookingInfo.area}
-
-ENDEREÇO:
-${bookingInfo.address}
-        `.trim();
-
-        const mailtoLink = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-        
-        // Open email client
-        window.location.href = mailtoLink;
-
-        // Reset App
+      
+      function resetForm() {
+        // Reset App State
         state.selectedDate = null;
         state.address = '';
+        state.city = 'Franca'; // Reset to default
         state.areaType = null;
         state.customAreaSize = '';
         state.name = '';
@@ -1006,6 +1031,7 @@ ${bookingInfo.address}
         
         // Reset Inputs
         document.getElementById('input-address').value = '';
+        document.getElementById('input-city').value = 'Franca';
         document.getElementById('input-custom-area').value = '';
         document.getElementById('input-name').value = '';
         document.getElementById('input-cpf').value = '';
@@ -1036,9 +1062,76 @@ ${bookingInfo.address}
         document.getElementById('btn-details-next').setAttribute('disabled', 'true');
         document.getElementById('btn-confirm-booking').setAttribute('disabled', 'true');
 
-        closeModal();
         showView('view-calendar');
         renderCalendar(); 
+      }
+
+      document.getElementById('btn-close-modal').onclick = closeModal;
+      document.getElementById('btn-cancel-modal').onclick = closeModal;
+      document.getElementById('modal-backdrop').onclick = closeModal;
+      
+      document.getElementById('btn-success-close').onclick = () => {
+          closeModal();
+          resetForm();
+      }
+      
+      document.getElementById('btn-error-retry').onclick = () => {
+         // Return to confirm state
+         document.getElementById('modal-state-error').classList.add('hidden');
+         document.getElementById('modal-state-confirm').classList.remove('hidden');
+         document.getElementById('btn-close-modal').classList.remove('hidden');
+      };
+
+      document.getElementById('btn-final-confirm').onclick = async () => {
+        // 1. UI Loading State
+        document.getElementById('modal-state-confirm').classList.add('hidden');
+        document.getElementById('btn-close-modal').classList.add('hidden');
+        document.getElementById('modal-state-loading').classList.remove('hidden');
+        
+        // 2. Prepare Data
+        if(state.selectedDate && !state.bookedDates.includes(state.selectedDate.toDateString())) {
+            // Optimistically book locally (revert if error? For now, we assume simple flow)
+            state.bookedDates.push(state.selectedDate.toDateString());
+        }
+        
+        let areaText = '';
+        if (state.areaType === '200') areaText = 'Pequeno (Até 200m²)';
+        else if (state.areaType === '400') areaText = 'Médio (Até 400m²)';
+        else if (state.areaType === 'personalized') areaText = `Personalizado: ${state.customAreaSize}`;
+        else areaText = `Avaliar no local${state.customAreaSize ? ` (Obs: ${state.customAreaSize})` : ''}`;
+
+        // Concatenate extra info to requested fields
+        const servicesList = Array.from(state.services).join(', ');
+        const finalTerreno = `${areaText} | Serviços: ${servicesList}`;
+        const finalName = `${state.name} (CPF: ${state.cpf})`;
+
+        const formData = new FormData();
+        formData.append('nome', finalName);
+        formData.append('cidade', state.city);
+        formData.append('endereco', state.address);
+        formData.append('data', state.selectedDate ? state.selectedDate.toLocaleDateString('pt-BR') : '');
+        formData.append('terreno', finalTerreno);
+        formData.append('whatsapp', state.phone);
+
+        // 3. Send Request
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                body: formData,
+                mode: 'no-cors' // Important for Google Apps Script Web Apps
+            });
+
+            // With no-cors, we can't check response.ok. We assume success if no network error.
+            document.getElementById('modal-state-loading').classList.add('hidden');
+            document.getElementById('modal-state-success').classList.remove('hidden');
+            lucide.createIcons(); // Re-init icons for the success checkmark
+
+        } catch (error) {
+            console.error('Error submitting form:', error);
+            document.getElementById('modal-state-loading').classList.add('hidden');
+            document.getElementById('modal-state-error').classList.remove('hidden');
+            lucide.createIcons();
+        }
       };
 
 
