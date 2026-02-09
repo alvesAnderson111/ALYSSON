@@ -42,6 +42,7 @@
             animation: {
               'slide-up': 'slideUp 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards',
               'fade-in': 'fadeIn 0.8s ease-out forwards',
+              'grow-bar': 'growBar 3s linear forwards',
             },
             keyframes: {
               slideUp: {
@@ -51,6 +52,10 @@
               fadeIn: {
                 '0%': { opacity: '0' },
                 '100%': { opacity: '1' },
+              },
+              growBar: {
+                '0%': { width: '0%' },
+                '100%': { width: '100%' },
               }
             }
           },
@@ -59,6 +64,12 @@
     </script>
     <style>
       .hidden { display: none !important; }
+      .tree-stage { transition: opacity 0.3s ease; }
+      /* Custom Scrollbar for nicer desktop feel */
+      ::-webkit-scrollbar { width: 8px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: #d1fae5; border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover { background: #34d399; }
     </style>
   <script type="importmap">
 {
@@ -70,347 +81,401 @@
 }
 </script>
 </head>
-  <body class="bg-stone-50 text-stone-800 font-sans overflow-x-hidden relative min-h-screen">
+  <body class="bg-stone-50 text-stone-800 font-sans overflow-x-hidden relative min-h-screen flex flex-col">
     
-    <!-- Background Decor -->
-    <div class="fixed top-0 left-0 w-64 h-64 bg-emerald-100/50 rounded-full mix-blend-multiply filter blur-3xl opacity-30 -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
-    <div class="fixed bottom-0 right-0 w-80 h-80 bg-emerald-200/50 rounded-full mix-blend-multiply filter blur-3xl opacity-30 translate-x-1/3 translate-y-1/3 pointer-events-none"></div>
+    <!-- Background Decor (Responsive Sizing) -->
+    <div class="fixed top-0 left-0 w-64 h-64 md:w-96 md:h-96 bg-emerald-100/50 rounded-full mix-blend-multiply filter blur-3xl opacity-30 -translate-x-1/2 -translate-y-1/2 pointer-events-none transition-all duration-700"></div>
+    <div class="fixed bottom-0 right-0 w-80 h-80 md:w-[30rem] md:h-[30rem] bg-emerald-200/50 rounded-full mix-blend-multiply filter blur-3xl opacity-30 translate-x-1/3 translate-y-1/3 pointer-events-none transition-all duration-700"></div>
 
     <!-- SPLASH SCREEN -->
     <div id="splash-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-stone-50 transition-opacity duration-500">
-      <div class="animate-slide-up flex flex-col items-center">
-        <div class="h-24 w-24 border-4 border-emerald-800 flex items-center justify-center rounded-full mb-4 shadow-xl bg-white">
-          <span class="font-mono text-4xl font-bold text-emerald-800 tracking-tighter">AJ</span>
+      
+      <!-- Brand Name -->
+      <div class="mb-8 flex flex-col items-center animate-slide-up">
+        <div class="h-16 w-16 md:h-20 md:w-20 border-2 border-emerald-800 flex items-center justify-center rounded-full mb-2 shadow-lg bg-white">
+          <span class="font-mono text-2xl md:text-3xl font-bold text-emerald-800 tracking-tighter">AJ</span>
         </div>
-        <h1 class="font-mono text-emerald-900 text-lg tracking-widest uppercase mt-2">Jardinagem</h1>
+        <h1 class="font-mono text-emerald-900 text-lg md:text-xl tracking-widest uppercase">Jardinagem</h1>
       </div>
+
+      <!-- Tree Animation Container -->
+      <div class="relative w-32 h-32 flex items-end justify-center mb-2">
+        <!-- Stage 1: Sprout -->
+        <svg id="tree-1" class="tree-stage absolute bottom-0 text-emerald-500" width="48" height="48" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+           <path d="M12 22c0-5 0-8 0-8c0-3-2-5-5-6c0 0 1.5 3 1.5 5c0 1-1.5 2-1.5 2s4 1 5 7" />
+           <path d="M12 22c0-5 0-8 0-8c0-3 2-5 5-6c0 0-1.5 3-1.5 5c0 1 1.5 2 1.5 2s-4 1-5 7" />
+        </svg>
+
+        <!-- Stage 2: Sapling -->
+        <svg id="tree-2" class="tree-stage absolute bottom-0 text-emerald-600 hidden" width="64" height="64" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+           <path d="M12 22v-8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+           <path d="M12 14c-3-4-6-5-6-9c0-2 2-3 4-3c1 0 2 1 2 3c0-2 1-3 2-3c2 0 4 1 4 3c0 4-3 5-6 9Z" />
+        </svg>
+
+        <!-- Stage 3: Young Tree -->
+        <svg id="tree-3" class="tree-stage absolute bottom-0 text-emerald-700 hidden" width="80" height="80" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+           <rect x="11" y="16" width="2" height="8" rx="1" fill="#4B3621"/>
+           <path d="M12 4C7 4 4 8 4 11c0 2 2 4 4 5c-1 1-1 2 0 3c1 1 3 1 4 0c1 1 3 1 4 0c1-1 1-2 0-3c2-1 4-3 4-5c0-3-3-7-8-7Z" />
+        </svg>
+
+        <!-- Stage 4: Mature Tree -->
+        <svg id="tree-4" class="tree-stage absolute bottom-0 text-emerald-800 hidden" width="96" height="96" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+           <path d="M10 22h4v-6h-4z" fill="#3E2723"/> 
+           <path d="M12 2C6 2 2 7 2 11c0 3 2 5 3 6c-1 1-1 2 0 3c2 2 5 1 7 0c2 1 5 2 7 0c1-1 1-2 0-3c1-1 3-3 3-6c0-4-4-9-10-9Z" />
+        </svg>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="w-48 md:w-64 h-1.5 bg-stone-200 rounded-full overflow-hidden mb-8">
+        <div class="h-full bg-emerald-600 rounded-full animate-grow-bar"></div>
+      </div>
+
       <!-- Location Warning -->
-      <div class="absolute bottom-12 animate-fade-in opacity-0" style="animation-delay: 0.5s; animation-fill-mode: forwards;">
-        <p class="text-emerald-800/70 text-sm font-medium tracking-wide bg-emerald-50 px-4 py-2 rounded-full border border-emerald-100">
+      <div class="animate-fade-in opacity-0" style="animation-delay: 2.5s; animation-fill-mode: forwards;">
+        <p class="text-emerald-800/70 text-xs font-bold tracking-widest uppercase bg-emerald-50 px-4 py-1.5 rounded-full border border-emerald-100 shadow-sm">
           Apenas Franca e região
         </p>
       </div>
     </div>
 
     <!-- MAIN APP WRAPPER -->
-    <div id="app-content" class="hidden relative z-10 py-6 md:py-12">
+    <div id="app-content" class="hidden relative z-10 py-6 md:py-12 flex-grow flex flex-col items-center">
       
       <!-- HEADER -->
-      <header class="flex justify-center mb-4 md:mb-8 animate-fade-in">
-        <div class="flex items-center gap-2 text-emerald-900 border-b-2 border-emerald-100 pb-2 px-4">
-          <span class="font-mono font-bold text-2xl tracking-tighter">AJ</span>
-          <span class="h-4 w-px bg-emerald-300 mx-1"></span>
-          <span class="text-xs font-medium tracking-widest uppercase">Jardinagem</span>
+      <header class="flex justify-center mb-4 md:mb-10 animate-fade-in w-full">
+        <div class="flex items-center gap-2 text-emerald-900 border-b-2 border-emerald-100 pb-2 px-4 transition-all hover:border-emerald-300">
+          <span class="font-mono font-bold text-2xl md:text-3xl tracking-tighter">AJ</span>
+          <span class="h-4 md:h-5 w-px bg-emerald-300 mx-1"></span>
+          <span class="text-xs md:text-sm font-medium tracking-widest uppercase">Jardinagem</span>
         </div>
       </header>
 
-      <!-- VIEW: CALENDAR -->
-      <div id="view-calendar" class="w-full max-w-md mx-auto animate-fade-in p-4 hidden">
-        <div class="mb-8 text-center">
-          <h2 class="text-2xl font-bold text-emerald-900 mb-2">Agende seu Orçamento</h2>
-          <p class="text-stone-500 text-sm">Selecione o melhor dia para nossa visita técnica.</p>
-        </div>
+      <!-- CONTENT CONTAINER -->
+      <div class="w-full max-w-md md:max-w-2xl lg:max-w-4xl mx-auto px-4">
 
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-stone-100">
-          <div class="bg-emerald-800 p-4 flex items-center justify-between text-white">
-            <button id="cal-prev" class="p-1 hover:bg-emerald-700 rounded-full transition-colors">
-              <i data-lucide="chevron-left"></i>
-            </button>
-            <span id="cal-month-name" class="font-semibold capitalize text-lg"></span>
-            <button id="cal-next" class="p-1 hover:bg-emerald-700 rounded-full transition-colors">
-              <i data-lucide="chevron-right"></i>
-            </button>
+        <!-- VIEW: CALENDAR -->
+        <div id="view-calendar" class="w-full max-w-md mx-auto animate-fade-in hidden">
+          <div class="mb-8 text-center">
+            <h2 class="text-2xl md:text-3xl font-bold text-emerald-900 mb-2">Agende seu Orçamento</h2>
+            <p class="text-stone-500 text-sm md:text-base">Selecione o melhor dia para nossa visita técnica.</p>
           </div>
 
-          <div class="grid grid-cols-7 gap-1 p-4 pb-2 text-center border-b border-stone-100">
-            <div class="text-xs font-bold text-stone-400 font-mono">D</div>
-            <div class="text-xs font-bold text-stone-400 font-mono">S</div>
-            <div class="text-xs font-bold text-stone-400 font-mono">T</div>
-            <div class="text-xs font-bold text-stone-400 font-mono">Q</div>
-            <div class="text-xs font-bold text-stone-400 font-mono">Q</div>
-            <div class="text-xs font-bold text-stone-400 font-mono">S</div>
-            <div class="text-xs font-bold text-stone-400 font-mono">S</div>
-          </div>
-
-          <div id="cal-grid" class="grid grid-cols-7 gap-2 p-4">
-            <!-- Grid generated by JS -->
-          </div>
-        </div>
-
-        <div class="mt-6 flex items-center justify-center gap-4 text-xs text-stone-500">
-          <div class="flex items-center gap-1">
-            <div class="w-3 h-3 rounded-full bg-emerald-500 border border-emerald-500"></div>
-            <span>Hoje</span>
-          </div>
-          <div class="flex items-center gap-1">
-            <div class="w-3 h-3 rounded-full bg-stone-200"></div>
-            <span>Ocupado</span>
-          </div>
-           <div class="flex items-center gap-1">
-            <div class="w-3 h-3 rounded-full border border-stone-300"></div>
-            <span>Livre</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- VIEW: SERVICES -->
-      <div id="view-services" class="w-full max-w-md mx-auto animate-fade-in px-4 pb-24 hidden">
-        <div class="flex items-center mb-6 pt-4">
-          <button id="btn-back-services" class="p-2 -ml-2 text-stone-500 hover:bg-stone-100 rounded-full">
-            <i data-lucide="arrow-left" width="24" height="24"></i>
-          </button>
-          <h2 class="text-xl font-bold text-emerald-900 ml-2">Escolha os Serviços</h2>
-        </div>
-
-        <div class="space-y-4">
-           <p class="text-stone-500 text-sm mb-4">Selecione um ou mais serviços que você precisa:</p>
-           
-           <!-- Roçada -->
-           <button class="btn-service w-full p-4 rounded-xl border border-stone-200 bg-stone-50 hover:bg-white hover:border-emerald-300 transition-all flex items-center gap-4 group text-left" onclick="toggleService('Roçada', this)">
-             <div class="w-12 h-12 rounded-full bg-white border border-stone-100 flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform shadow-sm">
-               <i data-lucide="scissors" width="20"></i>
-             </div>
-             <div>
-               <h3 class="font-bold text-stone-800">Roçada</h3>
-               <p class="text-xs text-stone-500">Corte de grama e limpeza</p>
-             </div>
-             <div class="ml-auto opacity-0 check-icon text-emerald-600">
-               <i data-lucide="check-circle-2" width="24"></i>
-             </div>
-           </button>
-
-           <!-- Implantação -->
-           <button class="btn-service w-full p-4 rounded-xl border border-stone-200 bg-stone-50 hover:bg-white hover:border-emerald-300 transition-all flex items-center gap-4 group text-left" onclick="toggleService('Implantação', this)">
-             <div class="w-12 h-12 rounded-full bg-white border border-stone-100 flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform shadow-sm">
-               <i data-lucide="shovel" width="20"></i>
-             </div>
-             <div>
-               <h3 class="font-bold text-stone-800">Implantação</h3>
-               <p class="text-xs text-stone-500">Criação de novos jardins</p>
-             </div>
-             <div class="ml-auto opacity-0 check-icon text-emerald-600">
-               <i data-lucide="check-circle-2" width="24"></i>
-             </div>
-           </button>
-
-           <!-- Retirada de Entulho -->
-           <button class="btn-service w-full p-4 rounded-xl border border-stone-200 bg-stone-50 hover:bg-white hover:border-emerald-300 transition-all flex items-center gap-4 group text-left" onclick="toggleService('Retirada de Entulho', this)">
-             <div class="w-12 h-12 rounded-full bg-white border border-stone-100 flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform shadow-sm">
-               <i data-lucide="trash-2" width="20"></i>
-             </div>
-             <div>
-               <h3 class="font-bold text-stone-800">Retirada de Entulho</h3>
-               <p class="text-xs text-stone-500">Limpeza pós-obra ou jardim</p>
-             </div>
-             <div class="ml-auto opacity-0 check-icon text-emerald-600">
-               <i data-lucide="check-circle-2" width="24"></i>
-             </div>
-           </button>
-
-           <!-- Manutenção -->
-           <button class="btn-service w-full p-4 rounded-xl border border-stone-200 bg-stone-50 hover:bg-white hover:border-emerald-300 transition-all flex items-center gap-4 group text-left" onclick="toggleService('Manutenção de Jardim', this)">
-             <div class="w-12 h-12 rounded-full bg-white border border-stone-100 flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform shadow-sm">
-               <i data-lucide="flower-2" width="20"></i>
-             </div>
-             <div>
-               <h3 class="font-bold text-stone-800">Manutenção</h3>
-               <p class="text-xs text-stone-500">Cuidado periódico</p>
-             </div>
-             <div class="ml-auto opacity-0 check-icon text-emerald-600">
-               <i data-lucide="check-circle-2" width="24"></i>
-             </div>
-           </button>
-
-        </div>
-
-        <div class="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-stone-100 md:relative md:bg-transparent md:border-0 md:p-0 md:mt-8">
-          <button
-            id="btn-services-next"
-            disabled
-            class="w-full py-4 bg-emerald-800 text-white rounded-xl font-semibold shadow-lg shadow-emerald-900/20 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-emerald-900 transition-colors"
-          >
-            Continuar
-          </button>
-        </div>
-      </div>
-
-      <!-- VIEW: DETAILS FORM -->
-      <div id="view-details" class="w-full max-w-md mx-auto animate-fade-in px-4 pb-24 hidden">
-        <div class="flex items-center mb-6 pt-4">
-          <button id="btn-back-details" class="p-2 -ml-2 text-stone-500 hover:bg-stone-100 rounded-full">
-            <i data-lucide="arrow-left" width="24" height="24"></i>
-          </button>
-          <h2 class="text-xl font-bold text-emerald-900 ml-2">Detalhes da Área</h2>
-        </div>
-
-        <div class="space-y-6">
-          <!-- Address -->
-          <div class="bg-white p-5 rounded-2xl shadow-sm border border-stone-100">
-            <div class="flex items-center gap-2 mb-3 text-emerald-700">
-              <i data-lucide="map-pin" width="20"></i>
-              <h3 class="font-semibold">Endereço</h3>
+          <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-stone-100 transition-shadow hover:shadow-2xl">
+            <div class="bg-emerald-800 p-4 flex items-center justify-between text-white">
+              <button id="cal-prev" class="p-2 hover:bg-emerald-700 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-white/50">
+                <i data-lucide="chevron-left" class="w-6 h-6"></i>
+              </button>
+              <span id="cal-month-name" class="font-semibold capitalize text-lg md:text-xl tracking-wide"></span>
+              <button id="cal-next" class="p-2 hover:bg-emerald-700 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-white/50">
+                <i data-lucide="chevron-right" class="w-6 h-6"></i>
+              </button>
             </div>
-            <textarea
-              id="input-address"
-              placeholder="Rua, Número, Bairro e Ponto de Referência"
-              class="w-full p-3 bg-stone-50 border border-stone-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none resize-none h-24 text-sm"
-            ></textarea>
+
+            <div class="grid grid-cols-7 gap-1 p-4 pb-2 text-center border-b border-stone-100 bg-stone-50/50">
+              <div class="text-xs font-bold text-stone-400 font-mono">D</div>
+              <div class="text-xs font-bold text-stone-400 font-mono">S</div>
+              <div class="text-xs font-bold text-stone-400 font-mono">T</div>
+              <div class="text-xs font-bold text-stone-400 font-mono">Q</div>
+              <div class="text-xs font-bold text-stone-400 font-mono">Q</div>
+              <div class="text-xs font-bold text-stone-400 font-mono">S</div>
+              <div class="text-xs font-bold text-stone-400 font-mono">S</div>
+            </div>
+
+            <div id="cal-grid" class="grid grid-cols-7 gap-2 p-4 md:p-6 md:gap-3">
+              <!-- Grid generated by JS -->
+            </div>
           </div>
 
-          <!-- Area Size -->
-          <div class="bg-white p-5 rounded-2xl shadow-sm border border-stone-100">
-            <div class="flex items-center gap-2 mb-4 text-emerald-700">
-              <i data-lucide="ruler" width="20"></i>
-              <h3 class="font-semibold">Tamanho da Área</h3>
+          <div class="mt-6 flex items-center justify-center gap-6 text-xs md:text-sm text-stone-500">
+            <div class="flex items-center gap-2">
+              <div class="w-3 h-3 rounded-full bg-emerald-500 border border-emerald-500 shadow-sm"></div>
+              <span>Hoje</span>
             </div>
+            <div class="flex items-center gap-2">
+              <div class="w-3 h-3 rounded-full bg-stone-200 shadow-sm"></div>
+              <span>Ocupado</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-3 h-3 rounded-full border border-stone-300 bg-white shadow-sm"></div>
+              <span>Livre</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW: SERVICES -->
+        <div id="view-services" class="w-full max-w-md md:max-w-2xl mx-auto animate-fade-in pb-24 md:pb-12 hidden">
+          <div class="flex items-center mb-6 pt-4">
+            <button id="btn-back-services" class="p-2 -ml-2 text-stone-500 hover:bg-stone-100 rounded-full transition-colors">
+              <i data-lucide="arrow-left" width="24" height="24"></i>
+            </button>
+            <h2 class="text-xl md:text-2xl font-bold text-emerald-900 ml-2">Escolha os Serviços</h2>
+          </div>
+
+          <div class="space-y-4">
+            <p class="text-stone-500 text-sm md:text-base mb-4">Selecione um ou mais serviços que você precisa:</p>
             
-            <div class="space-y-3">
-              <button id="btn-area-200" class="btn-area w-full p-4 rounded-xl border text-left transition-all border-stone-200 hover:border-emerald-300 bg-stone-50" onclick="selectArea('200')">
-                <div class="font-semibold text-stone-800">Pequeno / Médio</div>
-                <div class="text-sm text-stone-500">Até 200m²</div>
+            <!-- Grid Layout for Larger Screens -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              
+              <!-- Roçada -->
+              <button class="btn-service p-4 md:p-6 rounded-xl border border-stone-200 bg-stone-50 hover:bg-white hover:border-emerald-300 hover:shadow-md transition-all flex items-center gap-4 group text-left h-full" onclick="toggleService('Roçada', this)">
+                <div class="w-12 h-12 md:w-14 md:h-14 shrink-0 rounded-full bg-white border border-stone-100 flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform shadow-sm">
+                  <i data-lucide="scissors" class="w-5 h-5 md:w-6 md:h-6"></i>
+                </div>
+                <div class="flex-grow">
+                  <h3 class="font-bold text-stone-800 text-base md:text-lg">Roçada</h3>
+                  <p class="text-xs md:text-sm text-stone-500">Corte de grama e limpeza</p>
+                </div>
+                <div class="ml-auto opacity-0 check-icon text-emerald-600">
+                  <i data-lucide="check-circle-2" class="w-6 h-6 md:w-7 md:h-7"></i>
+                </div>
               </button>
 
-              <button id="btn-area-400" class="btn-area w-full p-4 rounded-xl border text-left transition-all border-stone-200 hover:border-emerald-300 bg-stone-50" onclick="selectArea('400')">
-                <div class="font-semibold text-stone-800">Grande</div>
-                <div class="text-sm text-stone-500">Até 400m²</div>
+              <!-- Implantação -->
+              <button class="btn-service p-4 md:p-6 rounded-xl border border-stone-200 bg-stone-50 hover:bg-white hover:border-emerald-300 hover:shadow-md transition-all flex items-center gap-4 group text-left h-full" onclick="toggleService('Implantação', this)">
+                <div class="w-12 h-12 md:w-14 md:h-14 shrink-0 rounded-full bg-white border border-stone-100 flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform shadow-sm">
+                  <i data-lucide="shovel" class="w-5 h-5 md:w-6 md:h-6"></i>
+                </div>
+                <div class="flex-grow">
+                  <h3 class="font-bold text-stone-800 text-base md:text-lg">Implantação</h3>
+                  <p class="text-xs md:text-sm text-stone-500">Criação de novos jardins</p>
+                </div>
+                <div class="ml-auto opacity-0 check-icon text-emerald-600">
+                  <i data-lucide="check-circle-2" class="w-6 h-6 md:w-7 md:h-7"></i>
+                </div>
               </button>
 
-              <button id="btn-area-custom" class="btn-area w-full p-4 rounded-xl border text-left transition-all border-stone-200 hover:border-emerald-300 bg-stone-50" onclick="selectArea('custom')">
-                <div class="font-semibold text-stone-800">Não sei dizer...</div>
-                <div class="text-sm text-stone-500">Vamos avaliar no local</div>
+              <!-- Retirada de Entulho -->
+              <button class="btn-service p-4 md:p-6 rounded-xl border border-stone-200 bg-stone-50 hover:bg-white hover:border-emerald-300 hover:shadow-md transition-all flex items-center gap-4 group text-left h-full" onclick="toggleService('Retirada de Entulho', this)">
+                <div class="w-12 h-12 md:w-14 md:h-14 shrink-0 rounded-full bg-white border border-stone-100 flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform shadow-sm">
+                  <i data-lucide="trash-2" class="w-5 h-5 md:w-6 md:h-6"></i>
+                </div>
+                <div class="flex-grow">
+                  <h3 class="font-bold text-stone-800 text-base md:text-lg">Retirada de Entulho</h3>
+                  <p class="text-xs md:text-sm text-stone-500">Limpeza pós-obra ou jardim</p>
+                </div>
+                <div class="ml-auto opacity-0 check-icon text-emerald-600">
+                  <i data-lucide="check-circle-2" class="w-6 h-6 md:w-7 md:h-7"></i>
+                </div>
               </button>
 
-              <div id="container-custom-area" class="mt-3 animate-fade-in hidden">
-                <label class="text-xs text-stone-500 ml-1">Alguma observação? (Opcional)</label>
+              <!-- Manutenção -->
+              <button class="btn-service p-4 md:p-6 rounded-xl border border-stone-200 bg-stone-50 hover:bg-white hover:border-emerald-300 hover:shadow-md transition-all flex items-center gap-4 group text-left h-full" onclick="toggleService('Manutenção de Jardim', this)">
+                <div class="w-12 h-12 md:w-14 md:h-14 shrink-0 rounded-full bg-white border border-stone-100 flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform shadow-sm">
+                  <i data-lucide="flower-2" class="w-5 h-5 md:w-6 md:h-6"></i>
+                </div>
+                <div class="flex-grow">
+                  <h3 class="font-bold text-stone-800 text-base md:text-lg">Manutenção</h3>
+                  <p class="text-xs md:text-sm text-stone-500">Cuidado periódico</p>
+                </div>
+                <div class="ml-auto opacity-0 check-icon text-emerald-600">
+                  <i data-lucide="check-circle-2" class="w-6 h-6 md:w-7 md:h-7"></i>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <div class="fixed bottom-0 left-0 right-0 p-4 bg-white/90 backdrop-blur-md border-t border-stone-100 md:relative md:bg-transparent md:backdrop-blur-none md:border-0 md:p-0 md:mt-8 z-20">
+            <button
+              id="btn-services-next"
+              disabled
+              class="w-full py-4 md:py-3 bg-emerald-800 text-white rounded-xl font-semibold shadow-lg shadow-emerald-900/20 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-emerald-900 hover:shadow-xl hover:-translate-y-0.5 transition-all"
+            >
+              Continuar
+            </button>
+          </div>
+        </div>
+
+        <!-- VIEW: DETAILS FORM -->
+        <div id="view-details" class="w-full max-w-md md:max-w-2xl mx-auto animate-fade-in pb-24 md:pb-12 hidden">
+          <div class="flex items-center mb-6 pt-4">
+            <button id="btn-back-details" class="p-2 -ml-2 text-stone-500 hover:bg-stone-100 rounded-full transition-colors">
+              <i data-lucide="arrow-left" width="24" height="24"></i>
+            </button>
+            <h2 class="text-xl md:text-2xl font-bold text-emerald-900 ml-2">Detalhes da Área</h2>
+          </div>
+
+          <div class="space-y-6">
+            <!-- Address -->
+            <div class="bg-white p-5 md:p-8 rounded-2xl shadow-sm border border-stone-100 hover:shadow-md transition-shadow">
+              <div class="flex items-center gap-2 mb-3 text-emerald-700">
+                <i data-lucide="map-pin" width="20"></i>
+                <h3 class="font-semibold text-lg">Endereço</h3>
+              </div>
+              <textarea
+                id="input-address"
+                placeholder="Rua, Número, Bairro e Ponto de Referência"
+                class="w-full p-4 bg-stone-50 border border-stone-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none resize-none h-24 md:h-32 text-sm md:text-base transition-shadow"
+              ></textarea>
+            </div>
+
+            <!-- Area Size -->
+            <div class="bg-white p-5 md:p-8 rounded-2xl shadow-sm border border-stone-100 hover:shadow-md transition-shadow">
+              <div class="flex items-center gap-2 mb-4 text-emerald-700">
+                <i data-lucide="ruler" width="20"></i>
+                <h3 class="font-semibold text-lg">Tamanho da Área</h3>
+              </div>
+              
+              <!-- Responsive Grid for Area Buttons -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <button id="btn-area-200" class="btn-area w-full p-4 rounded-xl border text-left transition-all border-stone-200 hover:border-emerald-300 bg-stone-50 hover:bg-white" onclick="selectArea('200')">
+                  <div class="font-semibold text-stone-800">Pequeno / Médio</div>
+                  <div class="text-sm text-stone-500">Até 200m²</div>
+                </button>
+
+                <button id="btn-area-400" class="btn-area w-full p-4 rounded-xl border text-left transition-all border-stone-200 hover:border-emerald-300 bg-stone-50 hover:bg-white" onclick="selectArea('400')">
+                  <div class="font-semibold text-stone-800">Grande</div>
+                  <div class="text-sm text-stone-500">Até 400m²</div>
+                </button>
+
+                <!-- Full width on mobile, spans 2 cols on desktop -->
+                <button id="btn-area-custom" class="btn-area w-full md:col-span-2 p-4 rounded-xl border text-left transition-all border-stone-200 hover:border-emerald-300 bg-stone-50 hover:bg-white" onclick="selectArea('custom')">
+                  <div class="font-semibold text-stone-800">Não sei dizer...</div>
+                  <div class="text-sm text-stone-500">Vamos avaliar no local</div>
+                </button>
+              </div>
+
+              <div id="container-custom-area" class="mt-4 animate-fade-in hidden">
+                <label class="text-xs md:text-sm text-stone-500 ml-1">Alguma observação? (Opcional)</label>
                 <input
                   id="input-custom-area"
                   type="text"
                   placeholder="Ex: Área com desnível..."
-                  class="w-full mt-1 p-3 bg-white border border-stone-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none"
+                  class="w-full mt-1 p-3 md:p-4 bg-white border border-stone-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition-shadow"
                 />
               </div>
             </div>
           </div>
+
+          <div class="fixed bottom-0 left-0 right-0 p-4 bg-white/90 backdrop-blur-md border-t border-stone-100 md:relative md:bg-transparent md:backdrop-blur-none md:border-0 md:p-0 md:mt-8 z-20">
+            <button
+              id="btn-details-next"
+              disabled
+              class="w-full py-4 md:py-3 bg-emerald-800 text-white rounded-xl font-semibold shadow-lg shadow-emerald-900/20 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-emerald-900 hover:shadow-xl hover:-translate-y-0.5 transition-all"
+            >
+              Continuar
+            </button>
+          </div>
         </div>
 
-        <div class="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-stone-100 md:relative md:bg-transparent md:border-0 md:p-0 md:mt-8">
-          <button
-            id="btn-details-next"
-            disabled
-            class="w-full py-4 bg-emerald-800 text-white rounded-xl font-semibold shadow-lg shadow-emerald-900/20 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-emerald-900 transition-colors"
-          >
-            Continuar
-          </button>
-        </div>
-      </div>
+        <!-- VIEW: REVIEW -->
+        <div id="view-review" class="w-full max-w-md mx-auto animate-fade-in pb-24 md:pb-12 hidden">
+          <div class="flex items-center mb-6 pt-4">
+            <button id="btn-back-review" class="p-2 -ml-2 text-stone-500 hover:bg-stone-100 rounded-full transition-colors">
+              <i data-lucide="arrow-left" width="24" height="24"></i>
+            </button>
+            <h2 class="text-xl md:text-2xl font-bold text-emerald-900 ml-2">Revisar Solicitação</h2>
+          </div>
 
-      <!-- VIEW: REVIEW -->
-      <div id="view-review" class="w-full max-w-md mx-auto animate-fade-in px-4 pb-24 hidden">
-        <div class="flex items-center mb-6 pt-4">
-          <button id="btn-back-review" class="p-2 -ml-2 text-stone-500 hover:bg-stone-100 rounded-full">
-            <i data-lucide="arrow-left" width="24" height="24"></i>
-          </button>
-          <h2 class="text-xl font-bold text-emerald-900 ml-2">Revisar Solicitação</h2>
-        </div>
+          <div class="space-y-6">
+            <div class="bg-white rounded-2xl shadow-sm border border-stone-100 overflow-hidden hover:shadow-md transition-shadow">
+              <div class="bg-stone-100 px-5 py-3 border-b border-stone-200">
+                <h3 class="text-sm font-mono text-stone-500 uppercase tracking-wider">Resumo</h3>
+              </div>
+              
+              <div class="p-5 md:p-8 space-y-5">
+                <div class="flex items-start gap-4">
+                  <div class="p-2 bg-emerald-50 rounded-lg text-emerald-600 shrink-0">
+                    <i data-lucide="calendar" width="20"></i>
+                  </div>
+                  <div>
+                    <p class="text-xs text-stone-500 font-medium uppercase">Data Escolhida</p>
+                    <p id="review-date" class="text-stone-800 capitalize font-medium text-lg">--</p>
+                  </div>
+                </div>
 
-        <div class="space-y-6">
-          <div class="bg-white rounded-2xl shadow-sm border border-stone-100 overflow-hidden">
-            <div class="bg-stone-100 px-5 py-3 border-b border-stone-200">
-              <h3 class="text-sm font-mono text-stone-500 uppercase tracking-wider">Resumo</h3>
+                 <div class="flex items-start gap-4">
+                  <div class="p-2 bg-emerald-50 rounded-lg text-emerald-600 shrink-0">
+                    <i data-lucide="scissors" width="20"></i>
+                  </div>
+                  <div>
+                    <p class="text-xs text-stone-500 font-medium uppercase">Serviços</p>
+                    <p id="review-services" class="text-stone-800 text-sm md:text-base leading-relaxed">--</p>
+                  </div>
+                </div>
+
+                <div class="flex items-start gap-4">
+                  <div class="p-2 bg-emerald-50 rounded-lg text-emerald-600 shrink-0">
+                    <i data-lucide="ruler" width="20"></i>
+                  </div>
+                  <div>
+                    <p class="text-xs text-stone-500 font-medium uppercase">Tamanho da Área</p>
+                    <p id="review-area" class="text-stone-800 font-medium">--</p>
+                  </div>
+                </div>
+
+                <div class="flex items-start gap-4">
+                  <div class="p-2 bg-emerald-50 rounded-lg text-emerald-600 shrink-0">
+                    <i data-lucide="map-pin" width="20"></i>
+                  </div>
+                  <div>
+                    <p class="text-xs text-stone-500 font-medium uppercase">Endereço</p>
+                    <p id="review-address" class="text-stone-800 text-sm md:text-base leading-relaxed">--</p>
+                  </div>
+                </div>
+              </div>
             </div>
-            
-            <div class="p-5 space-y-4">
-              <div class="flex items-start gap-3">
-                <i data-lucide="calendar" class="text-emerald-600 mt-1 shrink-0" width="20"></i>
-                <div>
-                  <p class="text-xs text-stone-500 font-medium">Data Escolhida</p>
-                  <p id="review-date" class="text-stone-800 capitalize">--</p>
-                </div>
+
+            <div class="bg-white p-5 md:p-8 rounded-2xl shadow-sm border border-stone-100 space-y-4 hover:shadow-md transition-shadow">
+              <div class="flex items-center gap-2 mb-4 text-emerald-700 border-b border-stone-100 pb-2">
+                <i data-lucide="user-circle-2" width="24"></i>
+                <h3 class="font-bold text-lg">Seus Dados</h3>
               </div>
 
-               <div class="flex items-start gap-3">
-                <i data-lucide="scissors" class="text-emerald-600 mt-1 shrink-0" width="20"></i>
-                <div>
-                  <p class="text-xs text-stone-500 font-medium">Serviços</p>
-                  <p id="review-services" class="text-stone-800 text-sm">--</p>
-                </div>
+              <!-- Name -->
+              <div>
+                <label class="block text-xs font-medium text-stone-500 mb-1.5 ml-1">Nome Completo</label>
+                <input
+                  id="input-name"
+                  type="text"
+                  placeholder="Seu nome"
+                  class="w-full p-3 md:p-4 bg-stone-50 border border-stone-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition-shadow"
+                />
               </div>
 
-              <div class="flex items-start gap-3">
-                <i data-lucide="ruler" class="text-emerald-600 mt-1 shrink-0" width="20"></i>
-                <div>
-                  <p class="text-xs text-stone-500 font-medium">Tamanho da Área</p>
-                  <p id="review-area" class="text-stone-800">--</p>
-                </div>
+              <!-- CPF/CNPJ -->
+              <div>
+                <label class="block text-xs font-medium text-stone-500 mb-1.5 ml-1">CPF ou CNPJ</label>
+                <input
+                  id="input-cpf"
+                  type="text"
+                  placeholder="000.000.000-00"
+                  class="w-full p-3 md:p-4 bg-stone-50 border border-stone-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition-shadow"
+                />
+                <p class="text-xs text-red-500/80 mt-1.5 px-1 font-medium flex items-center gap-1">
+                  <i data-lucide="alert-circle" width="12"></i> Necessário para orçamento completo
+                </p>
               </div>
 
-              <div class="flex items-start gap-3">
-                <i data-lucide="map-pin" class="text-emerald-600 mt-1 shrink-0" width="20"></i>
-                <div>
-                  <p class="text-xs text-stone-500 font-medium">Endereço</p>
-                  <p id="review-address" class="text-stone-800 text-sm leading-relaxed">--</p>
-                </div>
+              <!-- Phone -->
+              <div>
+                <label class="block text-xs font-medium text-stone-500 mb-1.5 ml-1">WhatsApp / Telefone</label>
+                <input
+                  id="input-phone"
+                  type="tel"
+                  placeholder="(00) 00000-0000"
+                  class="w-full p-3 md:p-4 bg-stone-50 border border-stone-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-lg font-mono transition-shadow"
+                />
+                <p class="text-xs text-stone-400 mt-2 px-1">
+                  Enviaremos o orçamento por este número.
+                </p>
               </div>
             </div>
           </div>
 
-          <div class="bg-white p-5 rounded-2xl shadow-sm border border-stone-100 space-y-4">
-            <div class="flex items-center gap-2 mb-2 text-emerald-700">
-              <i data-lucide="user-circle-2" width="20"></i>
-              <h3 class="font-semibold">Seus Dados</h3>
-            </div>
-
-            <!-- Name -->
-            <div>
-              <label class="block text-xs text-stone-500 mb-1 ml-1">Nome Completo</label>
-              <input
-                id="input-name"
-                type="text"
-                placeholder="Seu nome"
-                class="w-full p-3 bg-stone-50 border border-stone-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none"
-              />
-            </div>
-
-            <!-- CPF/CNPJ -->
-            <div>
-              <label class="block text-xs text-stone-500 mb-1 ml-1">CPF ou CNPJ</label>
-              <input
-                id="input-cpf"
-                type="text"
-                placeholder="000.000.000-00"
-                class="w-full p-3 bg-stone-50 border border-stone-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none"
-              />
-              <p class="text-xs text-red-500/80 mt-1 px-1 font-medium">Necessário para orçamento completo</p>
-            </div>
-
-            <!-- Phone -->
-            <div>
-              <label class="block text-xs text-stone-500 mb-1 ml-1">WhatsApp / Telefone</label>
-              <input
-                id="input-phone"
-                type="tel"
-                placeholder="(00) 00000-0000"
-                class="w-full p-3 bg-stone-50 border border-stone-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-lg font-mono"
-              />
-              <p class="text-xs text-stone-400 mt-2 px-1">
-                Enviaremos o orçamento por este número.
-              </p>
-            </div>
+          <div class="fixed bottom-0 left-0 right-0 p-4 bg-white/90 backdrop-blur-md border-t border-stone-100 md:relative md:bg-transparent md:backdrop-blur-none md:border-0 md:p-0 md:mt-8 z-20">
+            <button
+              id="btn-confirm-booking"
+              disabled
+              class="w-full py-4 md:py-3 bg-emerald-800 text-white rounded-xl font-bold shadow-lg shadow-emerald-900/20 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-emerald-900 hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"
+            >
+              CONFIRMAR ORÇAMENTO
+              <i data-lucide="check-circle" width="20"></i>
+            </button>
           </div>
         </div>
 
-        <div class="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-stone-100 md:relative md:bg-transparent md:border-0 md:p-0 md:mt-8">
-          <button
-            id="btn-confirm-booking"
-            disabled
-            class="w-full py-4 bg-emerald-800 text-white rounded-xl font-bold shadow-lg shadow-emerald-900/20 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-emerald-900 transition-colors flex items-center justify-center gap-2"
-          >
-            CONFIRMAR ORÇAMENTO
-            <i data-lucide="check-circle" width="20"></i>
-          </button>
-        </div>
-      </div>
-
+      </div> <!-- End Content Container -->
     </div>
 
     <!-- MODAL -->
@@ -419,32 +484,32 @@
       <div id="modal-backdrop" class="absolute inset-0 bg-stone-900/60 backdrop-blur-sm animate-fade-in"></div>
       
       <!-- Modal Content -->
-      <div class="relative bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl animate-slide-up transform transition-all">
-        <button id="btn-close-modal" class="absolute top-4 right-4 text-stone-400 hover:text-stone-600">
+      <div class="relative bg-white rounded-3xl p-6 md:p-8 w-full max-w-sm md:max-w-md shadow-2xl animate-slide-up transform transition-all">
+        <button id="btn-close-modal" class="absolute top-4 right-4 text-stone-400 hover:text-stone-600 transition-colors bg-stone-100 rounded-full p-1">
           <i data-lucide="x" width="20"></i>
         </button>
 
         <div class="flex flex-col items-center text-center mt-2">
-          <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-4">
-            <i data-lucide="message-circle" width="32"></i>
+          <div class="w-16 h-16 md:w-20 md:h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-4 shadow-inner">
+            <i data-lucide="message-circle" class="w-8 h-8 md:w-10 md:h-10"></i>
           </div>
           
-          <h3 class="text-xl font-bold text-emerald-900 mb-2">Enviar Solicitação?</h3>
+          <h3 class="text-xl md:text-2xl font-bold text-emerald-900 mb-2">Enviar Solicitação?</h3>
           
-          <p class="text-stone-600 mb-6 text-sm leading-relaxed">
+          <p class="text-stone-600 mb-8 text-sm md:text-base leading-relaxed">
             Ao confirmar, os dados do seu pedido serão preparados para envio ao nosso e-mail para análise.
           </p>
 
           <div class="w-full space-y-3">
             <button
               id="btn-final-confirm"
-              class="w-full py-3 bg-emerald-600 text-white rounded-xl font-semibold shadow-md hover:bg-emerald-700 transition-colors"
+              class="w-full py-3.5 bg-emerald-600 text-white rounded-xl font-semibold shadow-md hover:bg-emerald-700 hover:shadow-lg hover:-translate-y-0.5 transition-all"
             >
               Sim, Confirmar
             </button>
             <button
               id="btn-cancel-modal"
-              class="w-full py-3 bg-transparent text-stone-500 font-medium hover:text-stone-800 transition-colors"
+              class="w-full py-3.5 bg-transparent text-stone-500 font-medium hover:text-stone-800 hover:bg-stone-50 rounded-xl transition-all"
             >
               Cancelar
             </button>
@@ -477,7 +542,24 @@
         // Render Calendar
         renderCalendar();
         
-        // Splash Timer
+        // Splash Animation Logic (Tree Growth)
+        const totalDuration = 3000;
+        const stageDuration = totalDuration / 4;
+        let currentStage = 1;
+
+        const growthInterval = setInterval(() => {
+            if (currentStage < 4) {
+                // Hide current
+                document.getElementById(`tree-${currentStage}`).classList.add('hidden');
+                // Show next
+                currentStage++;
+                document.getElementById(`tree-${currentStage}`).classList.remove('hidden');
+            } else {
+                clearInterval(growthInterval);
+            }
+        }, stageDuration);
+        
+        // Splash Dismiss Timer
         setTimeout(() => {
           const splash = document.getElementById('splash-screen');
           splash.classList.add('opacity-0', 'pointer-events-none');
@@ -487,7 +569,7 @@
             document.getElementById('app-content').classList.remove('hidden');
             showView('view-calendar');
           }, 500);
-        }, 2500);
+        }, totalDuration + 500); // 3s growth + small buffer
       };
 
       // CALENDAR LOGIC
