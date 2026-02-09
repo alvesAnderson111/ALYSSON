@@ -70,6 +70,9 @@
       ::-webkit-scrollbar-track { background: transparent; }
       ::-webkit-scrollbar-thumb { background: #d1fae5; border-radius: 4px; }
       ::-webkit-scrollbar-thumb:hover { background: #34d399; }
+      
+      .input-error { border-color: #ef4444 !important; background-color: #fef2f2 !important; }
+      .input-success { border-color: #10b981 !important; }
     </style>
   <script type="importmap">
 {
@@ -319,24 +322,28 @@
               <!-- Responsive Grid for Area Buttons -->
               <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <button id="btn-area-200" class="btn-area w-full p-4 rounded-xl border text-left transition-all border-stone-200 hover:border-emerald-300 bg-stone-50 hover:bg-white" onclick="selectArea('200')">
-                  <div class="font-semibold text-stone-800">Pequeno / Médio</div>
+                  <div class="font-semibold text-stone-800">Pequeno</div>
                   <div class="text-sm text-stone-500">Até 200m²</div>
                 </button>
 
                 <button id="btn-area-400" class="btn-area w-full p-4 rounded-xl border text-left transition-all border-stone-200 hover:border-emerald-300 bg-stone-50 hover:bg-white" onclick="selectArea('400')">
-                  <div class="font-semibold text-stone-800">Grande</div>
+                  <div class="font-semibold text-stone-800">Médio</div>
                   <div class="text-sm text-stone-500">Até 400m²</div>
                 </button>
 
-                <!-- Full width on mobile, spans 2 cols on desktop -->
-                <button id="btn-area-custom" class="btn-area w-full md:col-span-2 p-4 rounded-xl border text-left transition-all border-stone-200 hover:border-emerald-300 bg-stone-50 hover:bg-white" onclick="selectArea('custom')">
-                  <div class="font-semibold text-stone-800">Não sei dizer...</div>
-                  <div class="text-sm text-stone-500">Vamos avaliar no local</div>
+                <button id="btn-area-personalized" class="btn-area w-full p-4 rounded-xl border text-left transition-all border-stone-200 hover:border-emerald-300 bg-stone-50 hover:bg-white" onclick="selectArea('personalized')">
+                  <div class="font-semibold text-stone-800">Personalizado</div>
+                  <div class="text-sm text-stone-500">Outra metragem</div>
+                </button>
+
+                <button id="btn-area-unknown" class="btn-area w-full p-4 rounded-xl border text-left transition-all border-stone-200 hover:border-emerald-300 bg-stone-50 hover:bg-white" onclick="selectArea('unknown')">
+                  <div class="font-semibold text-stone-800">Não sei dizer</div>
+                  <div class="text-sm text-stone-500">Avaliar no local</div>
                 </button>
               </div>
 
               <div id="container-custom-area" class="mt-4 animate-fade-in hidden">
-                <label class="text-xs md:text-sm text-stone-500 ml-1">Alguma observação? (Opcional)</label>
+                <label id="label-custom-area" class="text-xs md:text-sm text-stone-500 ml-1">Alguma observação? (Opcional)</label>
                 <input
                   id="input-custom-area"
                   type="text"
@@ -428,9 +435,12 @@
                 <input
                   id="input-name"
                   type="text"
-                  placeholder="Seu nome"
+                  placeholder="Seu nome completo"
                   class="w-full p-3 md:p-4 bg-stone-50 border border-stone-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition-shadow"
                 />
+                <p id="error-name" class="hidden text-xs text-red-500 mt-1.5 px-1 font-medium flex items-center gap-1">
+                  <i data-lucide="alert-circle" width="12"></i> Digite Nome e Sobrenome
+                </p>
               </div>
 
               <!-- CPF/CNPJ -->
@@ -441,9 +451,10 @@
                   type="text"
                   placeholder="000.000.000-00"
                   class="w-full p-3 md:p-4 bg-stone-50 border border-stone-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition-shadow"
+                  maxlength="18"
                 />
-                <p class="text-xs text-red-500/80 mt-1.5 px-1 font-medium flex items-center gap-1">
-                  <i data-lucide="alert-circle" width="12"></i> Necessário para orçamento completo
+                <p id="error-cpf" class="hidden text-xs text-red-500 mt-1.5 px-1 font-medium flex items-center gap-1">
+                  <i data-lucide="alert-circle" width="12"></i> CPF (11) ou CNPJ (14) incorreto
                 </p>
               </div>
 
@@ -453,9 +464,13 @@
                 <input
                   id="input-phone"
                   type="tel"
-                  placeholder="(00) 00000-0000"
+                  placeholder="(00) 90000-0000"
                   class="w-full p-3 md:p-4 bg-stone-50 border border-stone-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-lg font-mono transition-shadow"
+                  maxlength="15"
                 />
+                <p id="error-phone" class="hidden text-xs text-red-500 mt-1.5 px-1 font-medium flex items-center gap-1">
+                  <i data-lucide="alert-circle" width="12"></i> Telefone inválido (DDD + 9 + 8 dígitos)
+                </p>
                 <p class="text-xs text-stone-400 mt-2 px-1">
                   Enviaremos o orçamento por este número.
                 </p>
@@ -534,6 +549,65 @@
         services: new Set()
       };
 
+      // VALIDATORS
+      const validators = {
+        name: (value) => {
+            const parts = value.trim().split(/\s+/);
+            return parts.length >= 2 && parts[0].length > 1 && parts[1].length > 1;
+        },
+        phone: (value) => {
+            const clean = value.replace(/\D/g, '');
+            // Must contain exactly 11 digits (DDD + 9 + 8 digits)
+            // Can optionally check if 3rd digit is 9: clean[2] === '9'
+            return clean.length === 11 && clean[2] === '9';
+        },
+        cpfCnpj: (value) => {
+            const clean = value.replace(/\D/g, '');
+            return clean.length === 11 || clean.length === 14;
+        }
+      };
+
+      // FORMATTERS
+      const formatters = {
+        phone: (value) => {
+            let r = value.replace(/\D/g, "");
+            r = r.replace(/^0/, "");
+            if (r.length > 11) r = r.substring(0, 11);
+
+            if (r.length > 10) {
+                // (11) 91234-5678
+                r = r.replace(/^(\d\d)(\d{5})(\d{4}).*/, "($1) $2-$3");
+            } else if (r.length > 5) {
+                // (11) 9123...
+                r = r.replace(/^(\d\d)(\d{4})(\d{0,4}).*/, "($1) $2-$3");
+            } else if (r.length > 2) {
+                // (11) 9...
+                r = r.replace(/^(\d\d)(\d{0,5})/, "($1) $2");
+            } else {
+                 r = r.replace(/^(\d*)/, "($1");
+            }
+            return r;
+        },
+        cpfCnpj: (value) => {
+             let v = value.replace(/\D/g, "");
+             if (v.length > 14) v = v.substring(0, 14);
+
+             if (v.length <= 11) {
+                 // CPF
+                 v = v.replace(/(\d{3})(\d)/, "$1.$2");
+                 v = v.replace(/(\d{3})(\d)/, "$1.$2");
+                 v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+             } else {
+                 // CNPJ
+                 v = v.replace(/^(\d{2})(\d)/, "$1.$2");
+                 v = v.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
+                 v = v.replace(/\.(\d{3})(\d)/, ".$1/$2");
+                 v = v.replace(/(\d{4})(\d)/, "$1-$2");
+             }
+             return v;
+        }
+      };
+
       // INIT
       window.onload = function() {
         // Init Lucide
@@ -542,6 +616,9 @@
         // Render Calendar
         renderCalendar();
         
+        // Setup Inputs
+        setupInputHandlers();
+
         // Splash Animation Logic (Tree Growth)
         const totalDuration = 3000;
         const stageDuration = totalDuration / 4;
@@ -571,6 +648,59 @@
           }, 500);
         }, totalDuration + 500); // 3s growth + small buffer
       };
+
+      // INPUT HANDLERS SETUP
+      function setupInputHandlers() {
+        const nameInput = document.getElementById('input-name');
+        const cpfInput = document.getElementById('input-cpf');
+        const phoneInput = document.getElementById('input-phone');
+
+        // Name
+        nameInput.addEventListener('input', (e) => {
+            state.name = e.target.value;
+            validateContact(); // Update button state
+        });
+        nameInput.addEventListener('blur', () => validateField('name', nameInput, 'error-name', validators.name));
+
+        // CPF/CNPJ
+        cpfInput.addEventListener('input', (e) => {
+            e.target.value = formatters.cpfCnpj(e.target.value);
+            state.cpf = e.target.value;
+            validateContact();
+        });
+        cpfInput.addEventListener('blur', () => validateField('cpfCnpj', cpfInput, 'error-cpf', validators.cpfCnpj));
+
+        // Phone
+        phoneInput.addEventListener('input', (e) => {
+            e.target.value = formatters.phone(e.target.value);
+            state.phone = e.target.value;
+            validateContact();
+        });
+        phoneInput.addEventListener('blur', () => validateField('phone', phoneInput, 'error-phone', validators.phone));
+      }
+
+      function validateField(type, inputElement, errorElementId, validatorFn) {
+        const errorEl = document.getElementById(errorElementId);
+        const isValid = validatorFn(inputElement.value);
+
+        if (!isValid && inputElement.value.length > 0) {
+            // Show Error
+            errorEl.classList.remove('hidden');
+            inputElement.classList.add('input-error');
+            inputElement.classList.remove('input-success', 'border-stone-200');
+        } else {
+            // Hide Error
+            errorEl.classList.add('hidden');
+            inputElement.classList.remove('input-error');
+            if (inputElement.value.length > 0) {
+                 inputElement.classList.add('input-success');
+                 inputElement.classList.remove('border-stone-200');
+            } else {
+                inputElement.classList.remove('input-success');
+                inputElement.classList.add('border-stone-200');
+            }
+        }
+      }
 
       // CALENDAR LOGIC
       function renderCalendar() {
@@ -699,14 +829,25 @@
         activeBtn.classList.remove('border-stone-200', 'bg-stone-50');
         activeBtn.classList.add('border-emerald-500', 'bg-emerald-50', 'ring-1', 'ring-emerald-500');
 
-        const customInput = document.getElementById('container-custom-area');
+        const container = document.getElementById('container-custom-area');
+        const label = document.getElementById('label-custom-area');
+        const input = document.getElementById('input-custom-area');
         
-        // Use 'custom' to represent "Don't know" / "Avaliar no local"
-        // We can show the input as optional notes
-        if (type === 'custom') {
-            customInput.classList.remove('hidden');
+        // Clear previous input if switching
+        // input.value = ''; 
+        // state.customAreaSize = ''; // Optional: if we want to reset input on switch
+
+        if (type === 'personalized') {
+            container.classList.remove('hidden');
+            label.textContent = "Informe o tamanho aproximado:";
+            input.placeholder = "Ex: 1000m²";
+            input.focus();
+        } else if (type === 'unknown') {
+            container.classList.remove('hidden');
+            label.textContent = "Alguma observação? (Opcional)";
+            input.placeholder = "Ex: Terreno com muito mato...";
         } else {
-            customInput.classList.add('hidden');
+            container.classList.add('hidden');
         }
         validateDetails();
       }
@@ -723,8 +864,12 @@
 
       function validateDetails() {
         const addressValid = state.address.trim().length > 5;
-        // If custom (don't know), size isn't required. If explicit size, check implicit logic (buttons 1 & 2 set areaType)
-        const areaValid = !!state.areaType;
+        let areaValid = !!state.areaType;
+        
+        // If personalized, size input is required
+        if (state.areaType === 'personalized') {
+             areaValid = state.customAreaSize.trim().length > 0;
+        }
         
         const btn = document.getElementById('btn-details-next');
         if (addressValid && areaValid) {
@@ -756,11 +901,12 @@
         document.getElementById('review-services').textContent = servicesList || 'Nenhum selecionado';
 
         let areaText = 'Não informado';
-        if (state.areaType === '200') areaText = 'Até 200m²';
-        else if (state.areaType === '400') areaText = 'Até 400m²';
-        else if (state.areaType === 'custom') areaText = 'A ser avaliado (Não sei dizer)';
+        if (state.areaType === '200') areaText = 'Pequeno (Até 200m²)';
+        else if (state.areaType === '400') areaText = 'Médio (Até 400m²)';
+        else if (state.areaType === 'personalized') areaText = `Personalizado: ${state.customAreaSize}`;
+        else if (state.areaType === 'unknown') areaText = 'Avaliar no local (Não sei dizer)';
         
-        if (state.areaType === 'custom' && state.customAreaSize) {
+        if (state.areaType === 'unknown' && state.customAreaSize) {
              areaText += ` - Obs: ${state.customAreaSize}`;
         }
         
@@ -768,9 +914,10 @@
       }
 
       function validateContact() {
-        const phoneValid = state.phone.length >= 10;
-        const nameValid = state.name.length > 2;
-        const cpfValid = state.cpf.length > 5; // Basic check length
+        // Use Strict Validators
+        const phoneValid = validators.phone(state.phone);
+        const nameValid = validators.name(state.name);
+        const cpfValid = validators.cpfCnpj(state.cpf);
 
         const btn = document.getElementById('btn-confirm-booking');
         if (phoneValid && nameValid && cpfValid) {
@@ -779,21 +926,6 @@
             btn.setAttribute('disabled', 'true');
         }
       }
-
-      document.getElementById('input-name').addEventListener('input', (e) => {
-        state.name = e.target.value;
-        validateContact();
-      });
-
-      document.getElementById('input-cpf').addEventListener('input', (e) => {
-        state.cpf = e.target.value;
-        validateContact();
-      });
-
-      document.getElementById('input-phone').addEventListener('input', (e) => {
-        state.phone = e.target.value;
-        validateContact();
-      });
 
       document.getElementById('btn-back-review').onclick = () => {
         showView('view-details');
@@ -819,10 +951,16 @@
             state.bookedDates.push(state.selectedDate.toDateString());
         }
         
+        let areaTextForEmail = '';
+        if (state.areaType === '200') areaTextForEmail = 'Pequeno (Até 200m²)';
+        else if (state.areaType === '400') areaTextForEmail = 'Médio (Até 400m²)';
+        else if (state.areaType === 'personalized') areaTextForEmail = `Personalizado: ${state.customAreaSize}`;
+        else areaTextForEmail = `Avaliar no local${state.customAreaSize ? ` (Obs: ${state.customAreaSize})` : ''}`;
+
         const bookingInfo = {
             date: state.selectedDate ? state.selectedDate.toLocaleDateString('pt-BR') : '',
             services: Array.from(state.services).join(', '),
-            area: state.areaType === 'custom' ? `Avaliar no local (${state.customAreaSize})` : (state.areaType === '200' ? 'Até 200m²' : 'Até 400m²'),
+            area: areaTextForEmail,
             address: state.address,
             name: state.name,
             cpf: state.cpf,
@@ -872,6 +1010,16 @@ ${bookingInfo.address}
         document.getElementById('input-name').value = '';
         document.getElementById('input-cpf').value = '';
         document.getElementById('input-phone').value = '';
+        
+        // Reset visual state of inputs
+        ['input-name', 'input-cpf', 'input-phone'].forEach(id => {
+             const el = document.getElementById(id);
+             el.classList.remove('input-success', 'input-error');
+             el.classList.add('border-stone-200');
+        });
+        ['error-name', 'error-cpf', 'error-phone'].forEach(id => {
+             document.getElementById(id).classList.add('hidden');
+        });
         
         document.querySelectorAll('.btn-service').forEach(btn => {
              btn.classList.remove('border-emerald-500', 'bg-emerald-50', 'ring-1', 'ring-emerald-500');
