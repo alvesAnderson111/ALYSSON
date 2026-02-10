@@ -1105,20 +1105,24 @@
         const finalTerreno = `${areaText} | Serviços: ${servicesList}`;
         const finalName = `${state.name} (CPF: ${state.cpf})`;
 
-        const formData = new FormData();
-        formData.append('nome', finalName);
-        formData.append('cidade', state.city);
-        formData.append('endereco', state.address);
-        formData.append('data', state.selectedDate ? state.selectedDate.toLocaleDateString('pt-BR') : '');
-        formData.append('terreno', finalTerreno);
-        formData.append('whatsapp', state.phone);
+        const payload = {
+            nome: finalName,
+            cidade: state.city,
+            endereco: state.address,
+            data: state.selectedDate ? state.selectedDate.toLocaleDateString('pt-BR') : '',
+            terreno: finalTerreno,
+            whatsapp: state.phone
+        };
 
         // 3. Send Request
         try {
             const response = await fetch(API_URL, {
                 method: 'POST',
-                body: formData,
-                mode: 'no-cors' // Important for Google Apps Script Web Apps
+                body: JSON.stringify(payload),
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'text/plain;charset=utf-8',
+                }
             });
 
             // With no-cors, we can't check response.ok. We assume success if no network error.
